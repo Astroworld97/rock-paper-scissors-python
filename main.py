@@ -1,4 +1,5 @@
 import random
+import math
 
 
 def play():
@@ -8,16 +9,13 @@ def play():
     computer = random.choice(["r", "p", "s"])
 
     if user == computer:
-        return "You and the computer have both chosen {}. It's a tie.".format(computer)
+        return (0, user, computer)
 
+    # r > s, s > p, p > r
     if is_win(user, computer):
-        return "You have chosen {} and the computer has chosen {}. You won!".format(
-            user, computer
-        )
-    else:
-        return "You have chosen {} and the computer has chosen {}. You lost :(".format(
-            user, computer
-        )
+        return (1, user, computer)
+
+    return (-1, user, computer)
 
 
 def is_win(player, opponent):
@@ -29,9 +27,47 @@ def is_win(player, opponent):
         or (player == "p" and opponent == "r")
     ):
         return True
-    else:
-        return False
+    return False
+
+
+def play_best_of(n):
+    # play against the computer until someone wins best of n games
+    # to win, you must win ceil(n/2) games (i.e. 2/3, 3/5, 4/7)
+    player_wins = 0
+    computer_wins = 0
+    wins_necessary = math.ceil(n / 2)
+    while player_wins < wins_necessary and computer_wins < wins_necessary:
+        result, user, computer = play()
+        # tie
+        if result == 0:
+            print("Tie. You and the computer have both chosen {}. \n".format(user))
+        # you win
+        elif result == 1:
+            player_wins += 1
+            print(
+                "You chose {} and the computer chose {}. You won!\n".format(
+                    user, computer
+                )
+            )
+        else:
+            computer_wins += 1
+            print(
+                "You chose {} and the computer chose {}. You lost :(\n".format(
+                    user, computer
+                )
+            )
+
+        if player_wins == wins_necessary:
+            print("You have won the best of {} games! What a champ :D".format(n))
+            quit()
+        if computer_wins == wins_necessary:
+            print(
+                "Unfortunately, the computer has won the best of {} games. Better luck next time!".format(
+                    n
+                )
+            )
+            quit()
 
 
 if __name__ == "__main__":
-    print(play())
+    play_best_of(5)
